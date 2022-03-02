@@ -1,27 +1,53 @@
-import { FormControl, FormLabel, Input as ChakraInput, InputProps as ChakraInputProps } from "@chakra-ui/react";
+import { 
+  FormControl, 
+  FormErrorMessage, 
+  FormLabel, 
+  Input as ChakraInput, 
+  InputProps as ChakraInputProps 
+} from "@chakra-ui/react";
+
+import {
+  forwardRef, 
+  ForwardRefRenderFunction //Tipando nossa ref
+} from "react";
+import { FieldErrors } from "react-hook-form";
 
 interface InputProps extends ChakraInputProps{
-    name: string;
-    label?: string;
-    
+  name: string;
+  label?: string;
+  error?: FieldErrors;
 } 
 
-export function Input({name, label, ...rest}: InputProps){
+//Componente em uma constante por causa do encaminhamento de ref
+const InputBase: ForwardRefRenderFunction<HTMLInputElement, InputProps> 
+  = ({name, label, error, ...rest}, ref) => {
     return (
-        <FormControl>
-            {!!label && <FormLabel htmlFor={name}>{label}</FormLabel>} 
-            <ChakraInput 
-              name={name} 
-              id={name}
-              focusBorderColor="pink.500"
-              bgColor="gray.900"
-              variant="filled"
-              _hover={{
-                bgColor: 'gray.900'
-              }}
-              size="lg"
-              {...rest}
-            />
-        </FormControl>
+      <FormControl isInvalid={!!error}>
+          {!!label && <FormLabel htmlFor={name}>{label}</FormLabel>} 
+          <ChakraInput 
+            name={name} 
+            id={name}
+            focusBorderColor="pink.500"
+            bgColor="gray.900"
+            variant="filled"
+            _hover={{
+              bgColor: 'gray.900'
+            }}
+            size="lg"
+            {...rest}
+            ref={ref} //Encaminhamento de ref
+          />
+          
+          {
+            !!error && (
+              <FormErrorMessage>
+                {error.message}
+              </FormErrorMessage>
+            )
+          }
+      </FormControl>
     )
 }
+
+//Faz um encaminhamento de ref
+export const Input = forwardRef(InputBase);
